@@ -1,3 +1,4 @@
+// solium-disable linebreak-style
 pragma solidity ^0.4.19;
 
 contract Contamination{
@@ -17,6 +18,6 @@ contract Contamination{
 
         address sensor;
     }
-
+    
 
 }
