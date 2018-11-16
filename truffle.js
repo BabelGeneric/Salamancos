@@ -11,6 +11,7 @@
  *     gasPrice: 10000000000,
  *   },
  */
+ //Launch contract: truffle migrate --network ganache --reset
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // for more about customizing your Truffle configuration!

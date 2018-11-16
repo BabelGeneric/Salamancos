@@ -1,7 +1,9 @@
 // solium-disable linebreak-style
 pragma solidity ^0.4.19;
 
-contract Contamination{
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+
+contract Contamination is Ownable{
    
     struct Company{    
         bool active;
