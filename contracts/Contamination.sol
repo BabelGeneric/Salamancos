@@ -76,6 +76,10 @@ contract Contamination is Ownable{
         return (company.companyName, company.active, company.sensor);
     }
 
+    function testView() external pure returns (string) {
+        return "hola desde la blockhain lokoh!";
+    }
+
     function setCurrentPollution(address _companyAddress, string _pollutionType, uint _current) external {
         Company storage company = companies[companyToOwner[_companyAddress]];
         company.current[_pollutionType] = _current;
