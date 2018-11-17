@@ -6,6 +6,14 @@ import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract Contamination is Ownable{
    
     uint public totalAmountAvailableForOwner;
+    
+    event UpdatedPollutionData(
+        address _companyAddress, 
+        string _pollutionType, 
+        uint _current, 
+        uint currentDeposit, 
+        uint totalAmountAvailableForOwner
+    );
 
     struct Company{    
         string companyName;
@@ -81,6 +89,7 @@ contract Contamination is Ownable{
         companies[companyToOwner[_companyAddress]] = company;
 
         //enviar evento
+        emit UpdatedPollutionData(_companyAddress, _pollutionType, _current, company.currentDeposit, totalAmountAvailableForOwner);
     }
 
     function transferFundsToOwner(uint amountToRetrieve) external payable onlyOwner{
