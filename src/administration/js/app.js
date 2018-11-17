@@ -14,7 +14,7 @@ App = {
         App.web3Provider = web3.currentProvider;
       } else {
         // If no intected web3 instance is detected, fall back to Ganache
-        App.web3Provider = new Web3.providers.HttpProvider("http://localhost:7545");
+        App.web3Provider = new Web3.providers.HttpProvider("http://localhost:8545");
       }
   
       web3 = new Web3(App.web3Provider);
@@ -48,15 +48,25 @@ App = {
         var companyName = document.getElementById("companyName").value;
 
         var contaminationInstance;
+        web3.eth.getAccounts(function(error, accounts) {
+          if (error) {
+            console.log(error);
+          }
+    
+          var account = accounts[0];
+        
+
         App.contracts.Contamination.deployed().then(function(instance) {
           contaminationInstance = instance;
 
-        App.promise = contaminationInstance.registerCompany.call(companyName).then(function(result) {
+
+        App.promise = contaminationInstance.registerCompany.sendTransaction(companyName, {from: account, gas : 4712388, value : 1}).then(function(result) {
           alert(result);
         }).catch(function(err) {
           console.log(err.message);
         });
       });
+    });
     }
   };
   

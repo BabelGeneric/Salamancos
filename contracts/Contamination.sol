@@ -6,7 +6,7 @@ import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract Contamination is Ownable{
    
     uint public totalAmountAvailableForOwner;
-    
+
     event UpdatedPollutionData(
         address _companyAddress, 
         string _pollutionType, 
@@ -31,8 +31,8 @@ contract Contamination is Ownable{
     Company[] public companies;
     mapping (address => uint) public companyToOwner;
 
-    function registerCompany(string _companyName) external payable returns (bool){
-        require(companyToOwner[msg.sender] != 0, "Company exists!");
+    function registerCompany(string _companyName) external payable returns (uint){
+        require(companyToOwner[msg.sender] == 0, "Company exists!");
         Company memory company;
         company.companyName = _companyName;
         company.active = false;
@@ -42,7 +42,7 @@ contract Contamination is Ownable{
         uint id = companies.push(company) - 1;
         companyToOwner[msg.sender] = id;
 
-        return true;
+        return companyToOwner[msg.sender];
     }
 
     function registerSensor(address _companyAddress, address _sensorAddress) external onlyOwner{
