@@ -5,7 +5,7 @@ import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract Contamination is Ownable{
    
-    uint totalEthereumForOwner;
+    uint public totalAmountAvailableForOwner;
 
     struct Company{    
         string companyName;
@@ -76,13 +76,16 @@ contract Contamination is Ownable{
         if(company.current[_pollutionType] > company.penalty[_pollutionType]){
             uint penalty = company.initialDeposit/100;// (company.current[_pollutionType] / company.penalty[_pollutionType])**company.totalPollutionAlerts;
             company.currentDeposit -= penalty;
-            totalEthereumForOwner += penalty;
+            totalAmountAvailableForOwner += penalty;
         }
-
         companies[companyToOwner[_companyAddress]] = company;
-
 
         //enviar evento
     }
 
+    function transferFundsToOwner(uint amountToRetrieve) external payable onlyOwner{
+        require(amountToRetrieve > totalAmountAvailableForOwner,"You dont have enough funds");
+        owner().transfer(amountToRetrieve);  
+        totalAmountAvailableForOwner -= amountToRetrieve;
+    }    
 }
