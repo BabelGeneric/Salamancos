@@ -22,13 +22,28 @@ App = {
     },
   
     initContract: function() {
-      $.getJSON("../../build/contracts/Contamination.json", function(data){
+      $.getJSON("Contamination.json", function(data){
+        console.log(data);
         // Get the necessary contract artifact file and instantiate it with truffle-contract
         var ContaminationArtifact = data;
         App.contracts.Contamination = TruffleContract(ContaminationArtifact);
+        console.log(App.contracts.Contamination);
   
         // Set the provider for our contract
         App.contracts.Contamination.setProvider(App.web3Provider);
+
+        var contaminationInstance;
+
+        console.log(App.contracts.Contamination);
+        App.contracts.Contamination.deployed().then(function(instance) {
+          contaminationInstance = instance;
+    
+        console.log(contaminationInstance.getCompanyInfo(0x0));
+        }).then(function(company) {
+          console.log(company);
+        }).catch(function(err) {
+          console.log(err.message);
+        });
       });
     },
 
