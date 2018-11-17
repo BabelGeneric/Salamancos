@@ -90,10 +90,6 @@ App = {
     });
   });
 
-function activateCompany() {
-    alert("Activated!");
-}
-
 function getCompanyInfo() {
     alert("Company info here!");
 }
