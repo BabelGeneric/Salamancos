@@ -31,7 +31,7 @@ contract Contamination is Ownable{
     Company[] public companies;
     mapping (address => uint) public companyToOwner;
 
-    function registerCompany(string _companyName) external payable returns (uint){
+    function registerCompany(string _companyName) external payable returns (bool){
         require(companyToOwner[msg.sender] == 0, "Company exists!");
         Company memory company;
         company.companyName = _companyName;
@@ -42,7 +42,7 @@ contract Contamination is Ownable{
         uint id = companies.push(company) - 1;
         companyToOwner[msg.sender] = id;
 
-        return companyToOwner[msg.sender];
+        return true;
     }
 
     function registerSensor(address _companyAddress, address _sensorAddress) external onlyOwner{
@@ -100,5 +100,9 @@ contract Contamination is Ownable{
         require(amountToRetrieve > totalAmountAvailableForOwner,"You dont have enough funds");
         owner().transfer(amountToRetrieve);  
         totalAmountAvailableForOwner -= amountToRetrieve;
-    }    
+    } 
+
+    function getCurrentBalance() external view returns(uint) {
+        return address(this).balance;
+    }   
 }

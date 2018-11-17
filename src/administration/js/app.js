@@ -46,6 +46,9 @@ App = {
 
     createCompany: function() {
         var companyName = document.getElementById("companyName").value;
+        var valueEth = document.getElementById("valueEth").value;
+        var valueEthInt = parseInt(valueEth);
+
 
         var contaminationInstance;
         web3.eth.getAccounts(function(error, accounts) {
@@ -59,15 +62,26 @@ App = {
         App.contracts.Contamination.deployed().then(function(instance) {
           contaminationInstance = instance;
 
-
-        App.promise = contaminationInstance.registerCompany.sendTransaction(companyName, {from: account, gas : 4712388, value : 1}).then(function(result) {
-          alert(result);
+        App.promise = contaminationInstance.registerCompany.sendTransaction(companyName, {from: account, gas : 4712388, value : web3.toWei(valueEthInt, 'ether')}).then(function(result) {
+          alert(result); 
         }).catch(function(err) {
           console.log(err.message);
         });
       });
     });
-    }
+    },
+    activateCompany: function() {
+      
+      App.contracts.Contamination.deployed().then(function(instance) {
+        contaminationInstance = instance;
+
+      App.promise = contaminationInstance.getCurrentBalance.call().then(function(result) {
+        alert(result); 
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+  });
+  }
   };
   
   $(function() {

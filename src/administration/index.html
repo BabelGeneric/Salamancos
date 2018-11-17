@@ -10,13 +10,15 @@
 
     <h2>Create company</h2>
     <form onsubmit="App.createCompany(); return false;">
-        Company name:<br>
-        <input type="text" id="companyName" maxlength="50"/><br>
-        <input type="submit" value="Create"/>
+        <table >
+        <tr><td>Company name:</td> <td>Value:</td></tr>
+        <tr><td><input type="text" id="companyName" maxlength="50"/></td> <td><input type="text" id="valueEth" maxlength="50"/></td></tr>
+        <tr><td><input type="submit" value="Create"/></td></tr>
+        </table>       
     </form>
 
     <h2>Activate company</h2>
-    <form onsubmit="activateCompany()">
+    <form onsubmit="App.activateCompany(); return false;">
         Company address:<br>
         <input type="text" id="companyAddress" maxlength="200"/><br>
         Required funds to activate (in ETH):<br>
