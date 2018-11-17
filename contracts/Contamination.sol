@@ -7,22 +7,32 @@ contract Contamination is Ownable{
    
     uint public totalAmountAvailableForOwner;
 
-    event UpdatedPollutionData(
+    event UpdatedAirPollutionData(
         address _companyAddress, 
-        string _pollutionType, 
+        uint _current, 
+        uint currentDeposit, 
+        uint totalAmountAvailableForOwner
+    );
+
+    event UpdatedWaterPollutionData(
+        address _companyAddress, 
         uint _current, 
         uint currentDeposit, 
         uint totalAmountAvailableForOwner
     );
 
     struct Company{    
+        address companyAddress;
         string companyName;
         bool active;
         uint initialDeposit;
         uint currentDeposit;
-        mapping(string => uint) warning;
-        mapping(string => uint) penalty;
-        mapping(string => uint) current;
+        uint warningAir;
+        uint warningWater;
+        uint penaltyAir;
+        uint penaltyWater;
+        uint currentAir;
+        uint currentWater;
         uint32 lastPollutionDate;
         uint32 totalPollutionAlerts;
         address sensor;
@@ -32,12 +42,21 @@ contract Contamination is Ownable{
     mapping (address => uint) public companyToOwner;
 
     function registerCompany(string _companyName) external payable returns (bool){
-        require(companyToOwner[msg.sender] == 0, "Company exists!");
+        //require(companyToOwner[msg.sender] == 0, "Company exists!");
         Company memory company;
+        company.companyAddress = msg.sender;
         company.companyName = _companyName;
         company.active = false;
         company.initialDeposit = msg.value;
         company.currentDeposit = msg.value;
+        company.warningAir = 20;
+        company.warningWater = 20;
+        company.penaltyAir = 30;
+        company.penaltyWater = 30;
+        company.currentAir = 0;
+        company.currentWater = 0;
+        company.totalPollutionAlerts = 0;
+        company.lastPollutionDate = 0;
 
         uint id = companies.push(company) - 1;
         companyToOwner[msg.sender] = id;
@@ -45,10 +64,11 @@ contract Contamination is Ownable{
         return true;
     }
 
-    function registerSensor(address _companyAddress, address _sensorAddress) external onlyOwner{
+    function registerSensor(address _companyAddress, address _sensorAddress) external onlyOwner returns (bool){
         Company memory company = companies[companyToOwner[_companyAddress]];
         company.sensor = _sensorAddress;
         companies[companyToOwner[_companyAddress]] = company;
+        return true;
     }
 
     function setCurrentDeposit(address _companyAddress) external payable{
@@ -57,49 +77,63 @@ contract Contamination is Ownable{
         companies[companyToOwner[_companyAddress]] = company;
     }
 
-    function activateCompany(address _companyAddress, uint amount) external onlyOwner{
+    function activateCompany(address _companyAddress, uint amount) external onlyOwner returns(bool){
         Company memory company = companies[companyToOwner[_companyAddress]];
-        require(company.currentDeposit >= amount,"Company dont have enough funds");
+        //require(company.currentDeposit >= amount,"Company dont have enough funds");
         company.active = true;
         companies[companyToOwner[_companyAddress]] = company;
-    }
-
-    function setPollutionThreshold(address _companyAddress, string _pollutionType, uint _warning, uint _penalty) external onlyOwner{
-        Company storage company = companies[companyToOwner[_companyAddress]];
-        company.warning[_pollutionType] = _warning;
-        company.penalty[_pollutionType] = _penalty;
-        companies[companyToOwner[_companyAddress]] = company;//Verificar si es necesario
+        return true;
     }
     
-    function getCompanyInfo(address _companyAddress) external view returns (string,bool,address){
+    function getCompanyInfo(address _companyAddress) external view returns (string,uint, uint, uint32, uint, uint, address){
         Company memory company = companies[companyToOwner[_companyAddress]];
-        return (company.companyName, company.active, company.sensor);
+        return (company.companyName, company.initialDeposit/(10**18), company.currentDeposit/(10**18), company.lastPollutionDate, 
+        company.currentAir, company.currentWater, company.sensor);
+    }
+
+    function getCompanyAddressById(uint position) external view returns (address) {
+        return companies[position].companyAddress;
     }
 
     function getRegisteredCompaniesCount() external view returns (uint) {
         return companies.length;
     }
 
-    function setCurrentPollution(address _companyAddress, string _pollutionType, uint _current) external {
+    function setCurrentAirPollution(address _companyAddress, uint _current) external {
         Company storage company = companies[companyToOwner[_companyAddress]];
-        company.current[_pollutionType] = _current;
-        company.lastPollutionDate = uint32(now);
-        company.totalPollutionAlerts++;
-        if(company.current[_pollutionType] > company.penalty[_pollutionType]){
-            uint penalty = company.initialDeposit/100;// (company.current[_pollutionType] / company.penalty[_pollutionType])**company.totalPollutionAlerts;
-            company.currentDeposit -= penalty;
-            totalAmountAvailableForOwner += penalty;
+        company.currentAir = _current;
+        if(company.currentAir > company.penaltyAir){
+            company.lastPollutionDate = uint32(now);
+            company.totalPollutionAlerts++;
+            company.currentDeposit -= 1;
+            totalAmountAvailableForOwner += 1;
         }
         companies[companyToOwner[_companyAddress]] = company;
 
         //enviar evento
-        emit UpdatedPollutionData(_companyAddress, _pollutionType, _current, company.currentDeposit, totalAmountAvailableForOwner);
+        emit UpdatedAirPollutionData(_companyAddress, _current, company.currentDeposit, totalAmountAvailableForOwner);
     }
 
-    function transferFundsToOwner(uint amountToRetrieve) external payable onlyOwner{
-        require(amountToRetrieve > totalAmountAvailableForOwner,"You dont have enough funds");
+    function setCurrentWaterPollution(address _companyAddress, uint _current) external {
+        Company storage company = companies[companyToOwner[_companyAddress]];
+        company.currentWater = _current;
+        if(company.currentWater > company.penaltyWater){
+            company.lastPollutionDate = uint32(now);
+            company.totalPollutionAlerts++;
+            company.currentDeposit -= 1*(10**18);
+            totalAmountAvailableForOwner += 1*(10**18);
+        }
+        companies[companyToOwner[_companyAddress]] = company;
+
+        //enviar evento
+        emit UpdatedWaterPollutionData(_companyAddress, _current, company.currentDeposit, totalAmountAvailableForOwner);
+    }
+
+    function transferFundsToOwner(uint amountToRetrieve) external payable onlyOwner returns (bool) {
+        require(amountToRetrieve <= totalAmountAvailableForOwner,"You dont have enough funds");
         owner().transfer(amountToRetrieve);  
         totalAmountAvailableForOwner -= amountToRetrieve;
+        return true;
     } 
 
     function getCurrentBalance() external view returns(uint) {

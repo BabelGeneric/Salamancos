@@ -8,6 +8,7 @@
     <h1>Administración</h1>
     <h2>Hay <span id="companyCount">-1</span> compañia/s registradas.</h2>
     <h2>Hay <span id="contractBalance">0</span> ETH disponible en el contrato.</h2>
+    <h2>Hay <span id="availableBalanceToRetrieve">0</span> ETH disponible para retirar.</h2>
 
     <h2>Create company</h2>
     <form>
@@ -21,16 +22,32 @@
     <h2>Activate company</h2>
     <form>
         Company address:<br>
-        <input type="text" id="companyAddress" maxlength="200"/><br>
+        <input type="text" id="companyAddressActive" maxlength="200"/><br>
         Required funds to activate (in ETH):<br>
         <input type="number" id="requiredFunds" min="0" max="999999"/><br>
         <input type="button" onclick="App.activateCompany();" value="Activate"/>
     </form>
 
+    <h2>Assign sensor to company</h2>
+    <form>
+        Company address:<br>
+        <input type="text" id="companyAddressForSensor" maxlength="200"/><br>
+        Sensor address:<br>
+        <input type="text" id="sensorAddressForCompany" maxlength="200"/><br>
+        <input type="button" onclick="App.registerSensor();" value="Assign"/>
+    </form>
+
+    <h2>Retrieve funds from contract (only by the owner)</h2>
+    <form>
+        Amount to retrieve:<br>
+        <input type="number" id="amountToRetrieve" min="0" max="999999"/><br>
+        <input type="button" onclick="App.retrieveFunds();" value="Take out"/>
+    </form>
+
     <h2>Retrieve company info</h2>
     <form>
         Company address:<br>
-        <input type="text" id="companyAddress" maxlength="200"/><br>
+        <input type="text" id="companyAddressInfo" maxlength="200"/><br>
         <input type="button" onclick="App.getCompanyInfo();" value="Retrieve"/>
     </form>
 </html>

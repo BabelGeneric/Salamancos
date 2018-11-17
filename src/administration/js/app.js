@@ -3,6 +3,8 @@ App = {
     contracts: {},
     account: null,
     instance: null,
+    contractAmount: 0,
+    retirableFunds: 0,
   
     init: async function() {
        
@@ -40,7 +42,7 @@ App = {
     
           App.account = accounts[0];
         });
-
+        
         //Save deployed contract instance
         App.contracts.Contamination.deployed().then(function(instance) {
           App.instance = instance;
@@ -51,7 +53,13 @@ App = {
           });
           //Update contract balance
           App.instance.getCurrentBalance.call().then(function(result) {
-            document.getElementById("contractBalance").textContent = parseInt(result) / 1000000000000000000;
+            App.contractAmount = parseInt(result) / 1000000000000000000;
+            document.getElementById("contractBalance").textContent = App.contractAmount;
+          });
+          //Update retirable funds
+          App.instance.totalAmountAvailableForOwner.call().then(function(result) {
+            App.retirableFunds = parseInt(result) / 1000000000000000000;
+            document.getElementById("availableBalanceToRetrieve").textContent = App.retirableFunds;
           });
         });
       });
@@ -63,22 +71,44 @@ App = {
         var valueEthInt = parseInt(valueEth);
 
         App.instance.registerCompany.sendTransaction(companyName, {from: App.account, gas : 4712388, value : web3.toWei(valueEthInt, 'ether')}).then(function(result) {
-          alert(result); 
+          alert("Compañia registrada correctamente!!"); 
         }).catch(function(err) {
           console.log(err.message);
         });
     },
     activateCompany: function() {
-      
-      App.instance.getCurrentBalance.call().then(function(result) {
-        alert(result); 
+      var companyAddress = document.getElementById("companyAddressActive").value;
+      var reqFunds = parseInt(document.getElementById("requiredFunds").value);
+      App.instance.activateCompany.sendTransaction(companyAddress, reqFunds, 
+        {from: App.account, gas : 4712388, value : 0}).then(function(result) {
+          alert("Se ha activado correctamente la empresa con el ID " + companyAddress);
       }).catch(function(err) {
-        console.log(err.message);
+        alert("Se ha activado correctamente la empresa con el ID " + companyAddress);
+      });
+    },
+    registerSensor: function() {
+      var companyAddress = document.getElementById("companyAddressForSensor").value;
+      var sensorAddressForCompany = document.getElementById("sensorAddressForCompany").value;
+      App.instance.registerSensor.sendTransaction(companyAddress, sensorAddressForCompany, 
+        {from: App.account, gas : 4712388, value : 0}).then(function(result) {
+          alert("Se ha asignado correctamente el sensor "+ sensorAddressForCompany + " a la empresa con el ID " + companyAddress);
+      }).catch(function(err) {
+        alert("Se ha asignado correctamente el sensor "+ sensorAddressForCompany + " a la empresa con el ID " + companyAddress);
+      });
+    },
+    retrieveFunds: function() {
+      var amountToRetrieve = parseInt(document.getElementById("amountToRetrieve").value);
+      App.instance.transferFundsToOwner.sendTransaction(web3.toWei(amountToRetrieve, 'ether'), 
+        {from: App.account, gas : 4712388, value : 0}).then(function(result) {
+      }).catch(function(err) {
+        alert("Not enough funds on the contract to retrieve");
       });
     },
     getCompanyInfo: function() {
-      App.instance.getCurrentBalance.call().then(function(result) {
+      var companyAddress = document.getElementById("companyAddressInfo").value;
+      App.instance.getCompanyInfo.call(companyAddress).then(function(result) {
         alert(result); 
+        console.log(result);
       }).catch(function(err) {
         console.log(err.message);
       });
