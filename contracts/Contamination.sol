@@ -41,8 +41,15 @@ contract Contamination is Ownable{
         companies[companyToOwner[_companyAddress]] = company;
     }
 
-    function activateCompany(address _companyAddress) external {
+    function setCurrentDeposit(address _companyAddress) external payable{
         Company memory company = companies[companyToOwner[_companyAddress]];
+        company.currentDeposit = msg.value;
+        companies[companyToOwner[_companyAddress]] = company;
+    }
+
+    function activateCompany(address _companyAddress,uint amount) external {
+        Company memory company = companies[companyToOwner[_companyAddress]];
+        require(company.currentDeposit >= amount,"Company dont have enough funds");
         company.active = true;
         companies[companyToOwner[_companyAddress]] = company;
     }
