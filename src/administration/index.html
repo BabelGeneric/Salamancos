@@ -5,8 +5,11 @@
     <script type="text/javascript" src="../js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
 
+    <h1>Administración</h1>
+    <h2>Hay <span id="companyCount">-1</span> compañia/s registradas</h2>
+
     <h2>Create company</h2>
-    <form onsubmit="App.createCompany()">
+    <form onsubmit="App.createCompany(); return false;">
         Company name:<br>
         <input type="text" id="companyName" maxlength="50"/><br>
         <input type="submit" value="Create"/>

@@ -1,6 +1,7 @@
 App = {
     web3Provider: null,
     contracts: {},
+    promise: null,
   
     init: async function() {
        
@@ -20,29 +21,24 @@ App = {
   
       return App.initContract();
     },
-  
+    
     initContract: function() {
       $.getJSON("../Contamination.json", function(data){
-        console.log(data);
         // Get the necessary contract artifact file and instantiate it with truffle-contract
         var ContaminationArtifact = data;
         App.contracts.Contamination = TruffleContract(ContaminationArtifact);
-        console.log(App.contracts.Contamination);
   
         // Set the provider for our contract
         App.contracts.Contamination.setProvider(App.web3Provider);
 
         var contaminationInstance;
-
-        console.log(App.contracts.Contamination);
         App.contracts.Contamination.deployed().then(function(instance) {
           contaminationInstance = instance;
     
-        console.log(contaminationInstance.testView.call());
-        }).then(function(company) {
-          console.log(company);
+        App.promise = contaminationInstance.getRegisteredCompaniesCount.call().then(function(result) {
+          document.getElementById("companyCount").textContent = result;
+        });
         }).catch(function(err) {
-          console.log("ERROR!!!!");
           console.log(err.message);
         });
       });
@@ -50,7 +46,17 @@ App = {
 
     createCompany: function() {
         var companyName = document.getElementById("companyName").value;
-        alert("Created company with name " + companyName);
+
+        var contaminationInstance;
+        App.contracts.Contamination.deployed().then(function(instance) {
+          contaminationInstance = instance;
+
+        App.promise = contaminationInstance.registerCompany.call(companyName).then(function(result) {
+          alert(result);
+        }).catch(function(err) {
+          console.log(err.message);
+        });
+      });
     }
   };
   
