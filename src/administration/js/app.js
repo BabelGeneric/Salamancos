@@ -1,7 +1,8 @@
 App = {
     web3Provider: null,
     contracts: {},
-    promise: null,
+    account: null,
+    instance: null,
   
     init: async function() {
        
@@ -31,15 +32,27 @@ App = {
         // Set the provider for our contract
         App.contracts.Contamination.setProvider(App.web3Provider);
 
-        var contaminationInstance;
-        App.contracts.Contamination.deployed().then(function(instance) {
-          contaminationInstance = instance;
+        //Save default account for later use
+        web3.eth.getAccounts(function(error, accounts) {
+          if (error) {
+            console.log(error);
+          }
     
-        App.promise = contaminationInstance.getRegisteredCompaniesCount.call().then(function(result) {
-          document.getElementById("companyCount").textContent = result;
+          App.account = accounts[0];
         });
-        }).catch(function(err) {
-          console.log(err.message);
+
+        //Save deployed contract instance
+        App.contracts.Contamination.deployed().then(function(instance) {
+          App.instance = instance;
+
+          //Update company count
+          App.instance.getRegisteredCompaniesCount.call().then(function(result) {
+            document.getElementById("companyCount").textContent = result;
+          });
+          //Update contract balance
+          App.instance.getCurrentBalance.call().then(function(result) {
+            document.getElementById("contractBalance").textContent = parseInt(result) / 1000000000000000000;
+          });
         });
       });
     },
@@ -49,39 +62,27 @@ App = {
         var valueEth = document.getElementById("valueEth").value;
         var valueEthInt = parseInt(valueEth);
 
-
-        var contaminationInstance;
-        web3.eth.getAccounts(function(error, accounts) {
-          if (error) {
-            console.log(error);
-          }
-    
-          var account = accounts[0];
-        
-
-        App.contracts.Contamination.deployed().then(function(instance) {
-          contaminationInstance = instance;
-
-        App.promise = contaminationInstance.registerCompany.sendTransaction(companyName, {from: account, gas : 4712388, value : web3.toWei(valueEthInt, 'ether')}).then(function(result) {
+        App.instance.registerCompany.sendTransaction(companyName, {from: App.account, gas : 4712388, value : web3.toWei(valueEthInt, 'ether')}).then(function(result) {
           alert(result); 
         }).catch(function(err) {
           console.log(err.message);
         });
-      });
-    });
     },
     activateCompany: function() {
       
-      App.contracts.Contamination.deployed().then(function(instance) {
-        contaminationInstance = instance;
-
-      App.promise = contaminationInstance.getCurrentBalance.call().then(function(result) {
+      App.instance.getCurrentBalance.call().then(function(result) {
         alert(result); 
       }).catch(function(err) {
         console.log(err.message);
       });
-  });
-  }
+    },
+    getCompanyInfo: function() {
+      App.instance.getCurrentBalance.call().then(function(result) {
+        alert(result); 
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    }
   };
   
   $(function() {
@@ -89,7 +90,3 @@ App = {
       App.init();
     });
   });
-
-function getCompanyInfo() {
-    alert("Company info here!");
-}

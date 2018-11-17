@@ -6,30 +6,31 @@
     <script type="text/javascript" src="js/app.js"></script>
 
     <h1>Administración</h1>
-    <h2>Hay <span id="companyCount">-1</span> compañia/s registradas</h2>
+    <h2>Hay <span id="companyCount">-1</span> compañia/s registradas.</h2>
+    <h2>Hay <span id="contractBalance">0</span> ETH disponible en el contrato.</h2>
 
     <h2>Create company</h2>
-    <form onsubmit="App.createCompany(); return false;">
+    <form>
         <table >
         <tr><td>Company name:</td> <td>Value:</td></tr>
         <tr><td><input type="text" id="companyName" maxlength="50"/></td> <td><input type="text" id="valueEth" maxlength="50"/></td></tr>
-        <tr><td><input type="submit" value="Create"/></td></tr>
+        <tr><td><input type="button" onclick="App.createCompany();" value="Create"/></td></tr>
         </table>       
     </form>
 
     <h2>Activate company</h2>
-    <form onsubmit="App.activateCompany(); return false;">
+    <form>
         Company address:<br>
         <input type="text" id="companyAddress" maxlength="200"/><br>
         Required funds to activate (in ETH):<br>
         <input type="number" id="requiredFunds" min="0" max="999999"/><br>
-        <input type="submit" value="Activate"/>
+        <input type="button" onclick="App.activateCompany();" value="Activate"/>
     </form>
 
     <h2>Retrieve company info</h2>
-    <form onsubmit="getCompanyInfo()">
+    <form>
         Company address:<br>
         <input type="text" id="companyAddress" maxlength="200"/><br>
-        <input type="submit" value="Retrieve"/>
+        <input type="button" onclick="App.getCompanyInfo();" value="Retrieve"/>
     </form>
 </html>
